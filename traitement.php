@@ -1,76 +1,80 @@
 <?php
-
 session_start();
+require_once 'db.php';
 
-// Vérifie si le token CSRF est présent et valide
-if (!isset($_POST['token']) || empty($_POST['token']) || $_POST['token'] !== $_SESSION['csrf_user_create']) {
-  die('Token CSRF invalide');
+
+if (isset($_POST['login']) && (!isset($_POST['token']) || $_POST['token'] !== $_SESSION['csrf_user_login'])) {
+    die('Token CSRF invalide');
+}
+if (isset($_POST['register']) && (!isset($_POST['token']) || $_POST['token'] !== $_SESSION['csrf_user_create'])) {
+    die('Token CSRF invalide');
 }
 
-// Supprime le token CSRF
+unset($_SESSION['csrf_user_login']);
 unset($_SESSION['csrf_user_create']);
 
 
-
-
-// Traitement de l'inscription
 if (isset($_POST['register'])) {
-  if (isset($_POST['username']) && !empty($_POST['username'])) {
-    $username = htmlspecialchars($_POST['username']);
-  } else {
-    echo "<p>Le pseudo est obligatoire</p>";
-    exit();
-  }
 
-  if (isset($_POST['email']) && !empty($_POST['email'])) {
-    $email = htmlspecialchars($_POST['email']);
-  } else {
-    echo "<p>L'email est obligatoire</p>";
-    exit();
-  }
+    $username = isset($_POST['username']) ? htmlspecialchars($_POST['username']) : die("<p>Le pseudo est obligatoire</p>");
+    $email = isset($_POST['email']) ? htmlspecialchars($_POST['email']) : die("<p>L'email est obligatoire</p>");
+    $password = isset($_POST['password']) ? htmlspecialchars($_POST['password']) : die("<p>Le mot de passe est obligatoire</p>");
 
-  if (isset($_POST['password']) && !empty($_POST['password'])) {
-    $password = htmlspecialchars($_POST['password']);
-  } else {
-    echo "<p>Le mot de passe est obligatoire</p>";
-    exit();
-  }
 
-  // Hash le mot de passe
-  $password_hashed = password_hash($password, PASSWORD_DEFAULT);
-  // Génère un ID unique
-  $id = bin2hex(random_bytes(16));
+    $password_hashed = password_hash($password, PASSWORD_DEFAULT);
 
-  // Se connecter à la base de données
-  require_once 'db.php';
+    $id = bin2hex(random_bytes(16));
 
-  // Prépare la requête
-  $sauvegarde = $pdo->prepare(
-    'INSERT INTO user_table (id, username, email, password) VALUES (:id, :username, :email, :password)'
-  );
 
-  // Exécute la requête
-  $sauvegarde->execute([
-    'id' => $id,
-    'username' => $username,
-    'email' => $email,
-    'password' => $password_hashed
-  ]);
+    $sauvegarde = $pdo->prepare(
+        'INSERT INTO user_table (id, username, email, password) VALUES (:id, :username, :email, :password)'
+    );
 
-  // Vérifie si l'utilisateur a bien été ajouté
-  if ($sauvegarde->rowCount() > 0) {
-    echo "<p>L'utilisateur a bien été ajouté</p>";
+    $sauvegarde->execute([
+        'id' => $id,
+        'username' => $username,
+        'email' => $email,
+        'password' => $password_hashed
+    ]);
 
-    // Démarre la session pour cet utilisateur
-    $_SESSION['userId'] = $id;
-    $_SESSION['username'] = $username;
-    $_SESSION['email'] = $email;
+    if ($sauvegarde->rowCount() > 0) {
+        echo "<p>L'utilisateur a bien été ajouté</p>";
 
-    header('Location: me.php');
-    exit();
-  } else {
-    echo "<p>Une erreur est survenue lors de l'ajout de l'utilisateur.</p>";
-  }
+
+        $_SESSION['userId'] = $id;
+        $_SESSION['username'] = $username;
+        $_SESSION['email'] = $email;
+
+        header('Location: dashboard.php');
+        exit();
+    } else {
+        echo "<p>Une erreur est survenue lors de l'ajout de l'utilisateur.</p>";
+    }
 }
 
+if (isset($_POST['login'])) {
+    $email = isset($_POST['email']) ? htmlspecialchars($_POST['email']) : die("<p>L'email est obligatoire</p>");
+    $password = isset($_POST['password']) ? htmlspecialchars($_POST['password']) : die("<p>Le mot de passe est obligatoire</p>");
+
+    $login = $pdo->prepare('SELECT id, username, email, password FROM user_table WHERE email = :email');
+    $login->execute(['email' => $email]);
+
+    if ($login->rowCount() > 0) {
+        $user = $login->fetch();
+
+        if (password_verify($password, $user['password'])) {
+
+            $_SESSION['username'] = $user['username'];
+            $_SESSION['userId'] = $user['id'];
+            $_SESSION['email'] = $user['email'];
+
+            header('Location: me.php');
+            exit();
+        } else {
+            echo "<p>Le mot de passe est incorrect.</p>";
+        }
+    } else {
+        echo "<p>L'utilisateur n'existe pas.</p>";
+    }
+}
 ?>
