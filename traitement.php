@@ -10,64 +10,66 @@ if (!isset($_POST['token']) || empty($_POST['token']) || $_POST['token'] !== $_S
 // Supprime le token CSRF
 unset($_SESSION['csrf_user_create']);
 
-if (isset($_POST['username']) && !empty($_POST['username'])) {
-  $username = htmlspecialchars($_POST['username']);
-} else {
-  echo "<p>Le titre est obligatoire</p>";
-}
-
-if (isset($_POST['email']) && !empty($_POST['email'])) {
-  $email = htmlspecialchars($_POST['email']);
-} else {
-  echo "<p>Le contenu est obligatoire</p>";
-}
-
-if (isset($_POST['password']) && !empty($_POST['password'])) {
-  $password = htmlspecialchars($_POST['password']);
-} else {
-  echo "<p>Le password est obligatoire</p>";
-}
 
 
-if (isset($username) && isset($email) && isset($password)) {
 
-  // On hash le mot de passe
-  $password = password_hash($password, PASSWORD_DEFAULT, []);
-  // On génère un ID unique
+// Traitement de l'inscription
+if (isset($_POST['register'])) {
+  if (isset($_POST['username']) && !empty($_POST['username'])) {
+    $username = htmlspecialchars($_POST['username']);
+  } else {
+    echo "<p>Le pseudo est obligatoire</p>";
+    exit();
+  }
+
+  if (isset($_POST['email']) && !empty($_POST['email'])) {
+    $email = htmlspecialchars($_POST['email']);
+  } else {
+    echo "<p>L'email est obligatoire</p>";
+    exit();
+  }
+
+  if (isset($_POST['password']) && !empty($_POST['password'])) {
+    $password = htmlspecialchars($_POST['password']);
+  } else {
+    echo "<p>Le mot de passe est obligatoire</p>";
+    exit();
+  }
+
+  // Hash le mot de passe
+  $password_hashed = password_hash($password, PASSWORD_DEFAULT);
+  // Génère un ID unique
   $id = bin2hex(random_bytes(16));
 
-  // On se connecte à la base de données
+  // Se connecter à la base de données
   require_once 'db.php';
 
-  // On prépare la requête
+  // Prépare la requête
   $sauvegarde = $pdo->prepare(
     'INSERT INTO user_table (id, username, email, password) VALUES (:id, :username, :email, :password)'
   );
 
-  // On exécute la requête
+  // Exécute la requête
   $sauvegarde->execute([
     'id' => $id,
     'username' => $username,
     'email' => $email,
-    'password' => $password
+    'password' => $password_hashed
   ]);
 
-  // On vérifie si l'utilisateur a bien été ajouté
-  if($sauvegarde->rowCount() > 0) {
+  // Vérifie si l'utilisateur a bien été ajouté
+  if ($sauvegarde->rowCount() > 0) {
     echo "<p>L'utilisateur a bien été ajouté</p>";
-    echo "<p>Voici les données de l'utilisateur ajouté : </p>";
-    echo "<p>ID : " . $id . "</p>";
 
-    session_start();
+    // Démarre la session pour cet utilisateur
     $_SESSION['userId'] = $id;
     $_SESSION['username'] = $username;
+    $_SESSION['email'] = $email;
 
     header('Location: me.php');
-
-    error_log("L'utilisateur " . $username . " a été ajouté avec l'ID : " . $id);
-
+    exit();
   } else {
-    echo "<p>Une erreur est survenue</p>";
+    echo "<p>Une erreur est survenue lors de l'ajout de l'utilisateur.</p>";
   }
 }
 
