@@ -6,7 +6,6 @@
     $_SESSION['csrf_user_create'] = bin2hex(random_bytes(32));
   }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>

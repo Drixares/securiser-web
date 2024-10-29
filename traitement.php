@@ -59,7 +59,7 @@ if (isset($username) && isset($email) && isset($password)) {
     echo "<p>ID : " . $id . "</p>";
 
     session_start();
-    $_SESSION['user'] = $id;
+    $_SESSION['userId'] = $id;
     $_SESSION['username'] = $username;
 
     header('Location: me.php');
