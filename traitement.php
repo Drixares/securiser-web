@@ -1,74 +1,80 @@
 <?php
-
 session_start();
+require_once 'db.php';
 
-// Vérifie si le token CSRF est présent et valide
-if (!isset($_POST['token']) || empty($_POST['token']) || $_POST['token'] !== $_SESSION['csrf_user_create']) {
-  die('Token CSRF invalide');
+
+if (isset($_POST['login']) && (!isset($_POST['token']) || $_POST['token'] !== $_SESSION['csrf_user_login'])) {
+    die('Token CSRF invalide');
+}
+if (isset($_POST['register']) && (!isset($_POST['token']) || $_POST['token'] !== $_SESSION['csrf_user_create'])) {
+    die('Token CSRF invalide');
 }
 
-// Supprime le token CSRF
+unset($_SESSION['csrf_user_login']);
 unset($_SESSION['csrf_user_create']);
 
-if (isset($_POST['username']) && !empty($_POST['username'])) {
-  $username = htmlspecialchars($_POST['username']);
-} else {
-  echo "<p>Le titre est obligatoire</p>";
+
+if (isset($_POST['register'])) {
+
+    $username = isset($_POST['username']) ? htmlspecialchars($_POST['username']) : die("<p>Le pseudo est obligatoire</p>");
+    $email = isset($_POST['email']) ? htmlspecialchars($_POST['email']) : die("<p>L'email est obligatoire</p>");
+    $password = isset($_POST['password']) ? htmlspecialchars($_POST['password']) : die("<p>Le mot de passe est obligatoire</p>");
+
+
+    $password_hashed = password_hash($password, PASSWORD_DEFAULT);
+
+    $id = bin2hex(random_bytes(16));
+
+
+    $sauvegarde = $pdo->prepare(
+        'INSERT INTO user_table (id, username, email, password) VALUES (:id, :username, :email, :password)'
+    );
+
+    $sauvegarde->execute([
+        'id' => $id,
+        'username' => $username,
+        'email' => $email,
+        'password' => $password_hashed
+    ]);
+
+    if ($sauvegarde->rowCount() > 0) {
+        echo "<p>L'utilisateur a bien été ajouté</p>";
+
+
+        $_SESSION['userId'] = $id;
+        $_SESSION['username'] = $username;
+        $_SESSION['email'] = $email;
+
+        header('Location: dashboard.php');
+        exit();
+    } else {
+        echo "<p>Une erreur est survenue lors de l'ajout de l'utilisateur.</p>";
+    }
 }
 
-if (isset($_POST['email']) && !empty($_POST['email'])) {
-  $email = htmlspecialchars($_POST['email']);
-} else {
-  echo "<p>Le contenu est obligatoire</p>";
+if (isset($_POST['login'])) {
+    $email = isset($_POST['email']) ? htmlspecialchars($_POST['email']) : die("<p>L'email est obligatoire</p>");
+    $password = isset($_POST['password']) ? htmlspecialchars($_POST['password']) : die("<p>Le mot de passe est obligatoire</p>");
+
+    $login = $pdo->prepare('SELECT id, username, email, password FROM user_table WHERE email = :email');
+    $login->execute(['email' => $email]);
+
+    if ($login->rowCount() > 0) {
+        $user = $login->fetch();
+
+        if (password_verify($password, $user['password'])) {
+
+            $_SESSION['username'] = $user['username'];
+            $_SESSION['userId'] = $user['id'];
+            $_SESSION['email'] = $user['email'];
+
+            header('Location: me.php');
+            exit();
+        } else {
+            echo "<p>Le mot de passe est incorrect.</p>";
+        }
+    } else {
+        echo "<p>L'utilisateur n'existe pas.</p>";
+    }
 }
-
-if (isset($_POST['password']) && !empty($_POST['password'])) {
-  $password = htmlspecialchars($_POST['password']);
-} else {
-  echo "<p>Le password est obligatoire</p>";
-}
-
-
-if (isset($username) && isset($email) && isset($password)) {
-
-  // On hash le mot de passe
-  $password = password_hash($password, PASSWORD_DEFAULT, []);
-  // On génère un ID unique
-  $id = bin2hex(random_bytes(16));
-
-  // On se connecte à la base de données
-  require_once 'db.php';
-
-  // On prépare la requête
-  $sauvegarde = $pdo->prepare(
-    'INSERT INTO user_table (id, username, email, password) VALUES (:id, :username, :email, :password)'
-  );
-
-  // On exécute la requête
-  $sauvegarde->execute([
-    'id' => $id,
-    'username' => $username,
-    'email' => $email,
-    'password' => $password
-  ]);
-
-  // On vérifie si l'utilisateur a bien été ajouté
-  if($sauvegarde->rowCount() > 0) {
-    echo "<p>L'utilisateur a bien été ajouté</p>";
-    echo "<p>Voici les données de l'utilisateur ajouté : </p>";
-    echo "<p>ID : " . $id . "</p>";
-
-    session_start();
-    $_SESSION['userId'] = $id;
-    $_SESSION['username'] = $username;
-
-    header('Location: me.php');
-
-    error_log("L'utilisateur " . $username . " a été ajouté avec l'ID : " . $id);
-
-  } else {
-    echo "<p>Une erreur est survenue</p>";
-  }
-}
-
 ?>
