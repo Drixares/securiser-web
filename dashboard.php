@@ -86,9 +86,9 @@ require_once 'get_header.php';
                                 class="flex items-center justify-between w-full cursor-pointer
                                 py-4 pr-4" 
                             >
-                                <span class="text-lg font-medium">
+                                <p class="text-lg font-medium">
                                     <?= $todo['title'] ?>
-                                </span>
+                                </p>
                                 <span class="text-sm text-gray-700">
                                     <?= $todo['due_date'] ?>
                                 </span>
@@ -116,7 +116,7 @@ require_once 'get_header.php';
 
                             >
                                 <!-- Your HTML file -->
-                                <i data-lucide="trash-2"></i>
+                                <i data-lucide="trash-2" class="text-gray-700"></i>
                             </button>
                             <input 
                                 type="hidden" 
