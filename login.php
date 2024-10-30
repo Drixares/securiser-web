@@ -29,6 +29,6 @@ require_once 'get_header.php';
     <input type="hidden" name="login" value="2">
     <input type="hidden" name="token" value="<?= $_SESSION["csrf_user_login"]; ?>">
 </form>
-<p>Vous n'avez pas de compte ? <a href="register.php">Créer un compte</a></p>
+<p>Vous n'avez pas de compte ? <a href="/">Créer un compte</a></p>
 </body>
 </html>
