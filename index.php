@@ -36,7 +36,7 @@ require_once 'get_header.php';
     <input type="hidden" name="register" value="1">
 
     <input type="hidden" name="token" value="<?= $_SESSION["csrf_user_create"]; ?>">
+    <p class="mt-5">Vous avez déjà un compte ? <a href="login.php">Connexion</a></p>
 </form>
-<p>Vous avez déjà un compte ? <a href="login.php">Connexion</a></p>
 </body>
 </html>

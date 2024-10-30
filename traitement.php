@@ -16,27 +16,29 @@ unset($_SESSION['csrf_user_create']);
 
 if (isset($_POST['register'])) {
 
+    echo "Traitement en cours...";
+    
     $username = isset($_POST['username']) ? htmlspecialchars($_POST['username']) : die("<p>Le pseudo est obligatoire</p>");
     $email = isset($_POST['email']) ? htmlspecialchars($_POST['email']) : die("<p>L'email est obligatoire</p>");
     $password = isset($_POST['password']) ? htmlspecialchars($_POST['password']) : die("<p>Le mot de passe est obligatoire</p>");
 
-
     $password_hashed = password_hash($password, PASSWORD_DEFAULT);
 
     $id = bin2hex(random_bytes(16));
-
-
+    
+    
     $sauvegarde = $pdo->prepare(
         'INSERT INTO user_table (id, username, email, password) VALUES (:id, :username, :email, :password)'
     );
-
+    
     $sauvegarde->execute([
         'id' => $id,
         'username' => $username,
         'email' => $email,
         'password' => $password_hashed
     ]);
-
+    
+    echo "Traitement en cours...";
     if ($sauvegarde->rowCount() > 0) {
         echo "<p>L'utilisateur a bien été ajouté</p>";
 
