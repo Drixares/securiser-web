@@ -17,10 +17,10 @@ if (isset($_POST['register'])) {
     $username = isset($_POST['username']) ? htmlspecialchars($_POST['username']) : die("<p>Le pseudo est obligatoire</p>");
     $email = isset($_POST['email']) ? htmlspecialchars($_POST['email']) : die("<p>L'email est obligatoire</p>");
     $password = isset($_POST['password']) ? htmlspecialchars($_POST['password']) : die("<p>Le mot de passe est obligatoire</p>");
-
+  
     $checkUser = $pdo->prepare('SELECT username, email FROM user_table WHERE email = :email OR username = :username');
     $checkUser->execute(['email' => $email, 'username' => $username]);
-
+  
     if ($checkUser->rowCount() > 0) {
         echo "<p>L'utilisateur existe déjà (email ou pseudo utilisé).</p>";
 
@@ -29,18 +29,17 @@ if (isset($_POST['register'])) {
 
     $password_hashed = password_hash($password, PASSWORD_DEFAULT);
     $id = bin2hex(random_bytes(16));
-
     $sauvegarde = $pdo->prepare(
         'INSERT INTO user_table (id, username, email, password) VALUES (:id, :username, :email, :password)'
     );
-
+    
     $sauvegarde->execute([
         'id' => $id,
         'username' => $username,
         'email' => $email,
         'password' => $password_hashed
     ]);
-
+    
     if ($sauvegarde->rowCount() > 0) {
         echo "<p>L'utilisateur a bien été ajouté.</p>";
 
