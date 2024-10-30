@@ -1,10 +1,15 @@
 <?php
 session_start();
 
-// Si on a pas de token CSRF, on en génère un
+
 if (!isset($_SESSION['csrf_user_create']) || empty($_SESSION['csrf_user_create'])) {
     $_SESSION['csrf_user_create'] = bin2hex(random_bytes(32));
 }
+
+if (!isset($_SESSION['userId'])) {
+    header('Location: dashboard.php');
+};
+
 
 require_once 'get_header.php';
 ?>

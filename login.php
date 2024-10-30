@@ -5,6 +5,10 @@ if (!isset($_SESSION['csrf_user_login']) || empty($_SESSION['csrf_user_login']))
     $_SESSION['csrf_user_login'] = bin2hex(random_bytes(32));
 }
 
+if (!isset($_SESSION['userId'])) {
+    header('Location: dashboard.php');
+};
+
 require_once 'get_header.php';
 ?>
 
