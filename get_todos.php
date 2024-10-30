@@ -10,7 +10,7 @@ if (!isset($_SESSION['userId'])) {
 }
 
 // On récupère les tâches de l'utilisateur
-$requete = $pdo->prepare('SELECT * FROM todos WHERE user_id = :user_id');
+$requete = $pdo->prepare('SELECT * FROM todos WHERE user_id = :user_id ORDER BY due_date ASC');
 $requete->execute(['user_id' => $_SESSION['userId']]);
 $todos = $requete->fetchAll();
 ?>
