@@ -18,7 +18,6 @@ if (!isset($_SESSION['userId'])) {
     header('Location: login.php');
 };
 
-
 require_once 'get_todos.php';
 require_once 'get_header.php';
 
@@ -30,7 +29,6 @@ $completed_todos = array_filter($todos, function($todo) {
 $todos = array_filter($todos, function($todo) {
     return $todo['status'] != 'completed';
 });
-
 ?>
 <body>
     <div class="px-4">

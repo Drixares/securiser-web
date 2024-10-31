@@ -34,5 +34,5 @@ require_once 'get_header.php';
     <input type="hidden" name="token" value="<?= $_SESSION["csrf_user_login"]; ?>">
     <p class="mt-5">Vous n'avez pas de compte ? <a href="index.php">Créer un compte</a></p>
 </form>
-</body>
-</html>
+
+<?php require_once 'get_footer.php'; ?>
