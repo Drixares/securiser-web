@@ -3,8 +3,7 @@
   require_once 'db.php';
 
   $userId = $_SESSION['userId'];
-  
-  // On vérifie que l'utilisateur est connecté
+
   if (!isset($userId) || empty($userId)) {
     header('Location: login.php');
     exit();
@@ -17,7 +16,6 @@
   $todoId = $_POST['todo_id'];
 
   try {
-    // delete the todo
     $deleteTodo = $pdo->prepare(
       'DELETE FROM todos WHERE id = :todoId AND user_id = :userId'
     );
@@ -27,7 +25,6 @@
       'userId' => $userId
     ]);
     $todo = $deleteTodo->fetch();
-    
 
     header('Location: dashboard.php');
 
