@@ -1,7 +1,7 @@
 <?php
 
 session_start();
-require_once 'db.php';
+require_once '../includes/db.php';
 
 if (!isset($_SESSION['userId'])) {
     header('Location: login.php');
@@ -21,8 +21,8 @@ if (!checkAdmin()) {
     exit();
 }
 
-require_once 'get_header.php';
-require_once 'get_users.php';
+require_once '../includes/get_header.php';
+require_once '../includes/get_users.php';
 
 ?>
 
@@ -82,6 +82,6 @@ require_once 'get_users.php';
         </table>
     </div>
     <?php
-    require_once 'get_footer.php';
+    require_once '../includes/get_footer.php';
     ?>
 

@@ -18,8 +18,8 @@ if (!isset($_SESSION['userId'])) {
     header('Location: login.php');
 };
 
-require_once 'get_todos.php';
-require_once 'get_header.php';
+require_once '../includes/get_header.php';
+require_once '../includes/get_todos.php';
 
 // On récupère les tâches déjà faites et on les met dans un autre tableau tout en enlevant les enelevant du tableau de base
 $completed_todos = array_filter($todos, function($todo) {
@@ -36,7 +36,7 @@ $todos = array_filter($todos, function($todo) {
             Vos tâches
         </h1>
         <form 
-            action="create_todos.php" 
+            action="../controllers/create_todos.php"
             method="POST" 
             class="mx-auto w-full max-w-screen-sm 
             flex flex-col sm:flex-row sm:items-center justify-center gap-x-4 gap-y-2 mt-10"
@@ -85,7 +85,7 @@ $todos = array_filter($todos, function($todo) {
                     <div class="flex items-center gap-2 w-full">
                         <form
                             method="POST"
-                            action="update_todos.php" 
+                            action="../controllers/update_todos.php"
                             class="flex items-center gap-3 border border-gray-200 rounded-lg
                             hover:bg-gray-50 transition-colors w-full"
                         >
@@ -126,7 +126,7 @@ $todos = array_filter($todos, function($todo) {
                                 value="<?= $todo['id'] ?>"
                             >
                         </form>
-                        <form action="delete_todos.php" method="POST">
+                        <form action="../controllers/delete_todos.php" method="POST">
                             <button 
                                 class="size-10 rounded-lg flex items-center justify-center
                                 hover:bg-red-100 hover:border hover:border-red-200 transition-colors"
@@ -169,7 +169,7 @@ $todos = array_filter($todos, function($todo) {
                     <div class="flex items-center gap-2 w-full">
                         <form
                             method="POST"
-                            action="update_todos.php" 
+                            action="../controllers/update_todos.php"
                             class="flex items-center gap-3 border border-gray-200 rounded-lg
                             hover:bg-gray-50 transition-colors w-full"
                         >
@@ -210,7 +210,7 @@ $todos = array_filter($todos, function($todo) {
                                 value="<?= $todo['id'] ?>"
                             >
                         </form>
-                        <form action="delete_todos.php" method="POST">
+                        <form action="../controllers/delete_todos.php" method="POST">
                             <button 
                                 class="size-10 rounded-lg flex items-center justify-center
                                 hover:bg-red-100 hover:border hover:border-red-200 transition-colors"
@@ -246,5 +246,5 @@ $todos = array_filter($todos, function($todo) {
     <script>
     lucide.createIcons();
     </script>
-</body>
-</html>
+
+<?php require_once '../includes/get_footer.php'; ?>
